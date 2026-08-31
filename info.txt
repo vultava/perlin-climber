@@ -1,0 +1,50 @@
+Ukratko projekat: Perlin Climber
+
+--- environment.py ---
+# U ovom fajlu nalaze se sve potrebne funckije za formiranje modela sistema kao i funkcije kojima nn interektije sa modelom
+Funkcije:
+    1. init - u njoj su inicirane, znaci odredjeno je mesto svim promenljivim koje uticu na formiranje perlin mape i penjaca
+    2. create_map - pomocu numpy-a formira perlin mapu i skladisti je u odgovarajuci ndarray
+    3. check_fin - proverava da li se dostavljena pozicija podudara sa finalnom pozicijom
+    4. h_diff - vraca razliku u visini susednih piksela
+    5. euclid_dist - vraca rastojanje izmedju nove naredne pozicije penjaca i finalne pozicije
+
+    FUNDAMENTALNO ZA NEURONSKE MREZE
+    6. calc_rew - racuna nagradu za narednu poziciju penjaca
+    7. step - izvrsava kretanje na osnovu postavljenog smera, VRACA STANDARDNO (STATE, REWARD, DONE, INFO ** kao dict **)
+    8. get_state - vraca ono sto PENJAC VIDI, udaljenost od cilja i okolne razlike u visini
+    9. reset - postavlja osnovno stanje sistema
+
+--- agent.py ---
+# U ovom fajlu se nalaze integralni delovi za kreiranje samog nn, ovde nema mnogo slobode vec je dosta definisano sa torch-om (za sad)
+Funkcije:
+    Class QNetwork:
+        1. init - definisanje velicine nn, osnovna inicijalizacija nn, kreiranje fully-connected lejera
+        2. forward - definise kako informacije teko kroz nn od ulaza ka izlazu, funkcija aktivacije
+    Class ReplayBuffer:
+        # Koristi se za pamcenje prethodnik akcija i rezultata
+        1. init - definise velicinu i tip buffera
+        2. push - dodavanje u buffer
+        3. sample - nasumicno uzimanje iz baffera
+        4. len - duzina buffera
+    Class DQNAgent:
+        # Ovde takodje nema mnogo polemisanja
+        1. init - definisanje velicine nn, gama, stvar glavni i pomocni nn, ucitava stanje nn, stvara optimizer i criterion, stvara prostor za buffer
+        2. select_action - prvo na osnovu epsilon dredjue da li ce korak biti random ili ce se korstiti nn da se odredi kretanje, a zatim vraca random smer ili koristi glavni nn da bi odabrao korak
+        3. learn - odaredjuje target q-vresdnosti, uporedjuje ih sa trenutnim pomocu criteriona i optimizuje unazad
+        4. update_target_nn - updejtuje stanje pomocnog nn sa glavnim
+
+--- train.py ---
+# U ovom fajlu se nalazi glavni loop vezbanja
+# Definisu se superparameti, napravi se mapa, dok se ne zavrsi koristi nn da bira korake, smanjuje epsilon, na kraju stanje nn u .pth fajl
+
+--- visualizer.py ---
+# Odvojeno od samog nn, koristi nn sa epsioln = 0 kko ne bi radio radnom korake nego samo one koje nn odredi
+
+
+
+U narednim iteracijama moze se unaprediti:
+    - veci obruc ulaznih informacija -> u odabiru puta pomoglo bi da vidi veci broj visina susednih kockica
+    - mogucnost dijagonalnog kretanja -> prirodniji oblik putanje
+    - bolje definisana funkcija nagrade -> istraziti kako???
+    - implementacija pytorch-a u izgradnji samog modela sistema -> ubrzan rad, visestruki agenti istovremeno na gpu valjda?
